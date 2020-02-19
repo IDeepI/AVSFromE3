@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AVSFromE3", "AVSFromE3\AVSFromE3.csproj", "{7F198FD9-BAD7-464D-904E-D8FEF8057403}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImBaseExtensionDLL", "ImBaseExtensionDLL\ImBaseExtensionDLL.csproj", "{E155EF24-4B6B-4CBD-B3B0-A0D44F53A861}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7F198FD9-BAD7-464D-904E-D8FEF8057403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F198FD9-BAD7-464D-904E-D8FEF8057403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F198FD9-BAD7-464D-904E-D8FEF8057403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F198FD9-BAD7-464D-904E-D8FEF8057403}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E155EF24-4B6B-4CBD-B3B0-A0D44F53A861}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E155EF24-4B6B-4CBD-B3B0-A0D44F53A861}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E155EF24-4B6B-4CBD-B3B0-A0D44F53A861}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E155EF24-4B6B-4CBD-B3B0-A0D44F53A861}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A6E1E8F1-7EFD-4949-9A01-EB9AA9E9BCD3}
+	EndGlobalSection
+EndGlobal
