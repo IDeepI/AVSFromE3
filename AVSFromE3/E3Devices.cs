@@ -1,10 +1,10 @@
 ﻿using ConnectToE3;
 using e3;
+using ImBaseExtensionDLL;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-
 
 namespace E3Namespace
 {
@@ -17,7 +17,7 @@ namespace E3Namespace
         public static e3Component Cmp;	// объект 
         public static e3Pin Pin;    // объект 
         public static e3DbeApplication e3Dbe;// объект приложения
-
+        public static List<E3Device> devList = new List<E3Device>();
 
         public static void GetDevices()
         {
@@ -42,8 +42,8 @@ namespace E3Namespace
             Object PinIds = new Object();
             string imbaseKEY;
             bool DoItAgain = false;
-            List<E3Device> devList = new List<E3Device>();
             
+
 
             foreach (var devId in (Array)DevIds)
             {
@@ -51,9 +51,9 @@ namespace E3Namespace
                 {
                     Dev.SetId((int)devId);
                     Cmp.SetId((int)devId);
-                  
+
                     if (Dev.IsWireGroup() == 0 && Dev.IsCable() == 0 && Dev.GetComponentName() != "" && Dev.IsAssembly() == 0)
-                    {                        
+                    {
                         bool isTerminal = (Dev.IsTerminal() == 1 && Dev.IsTerminalBlock() != 1);
                         string pinName = null;
                         // Позиционное обозначение
@@ -92,8 +92,17 @@ namespace E3Namespace
                             Prj.UpdateComponent(Cmp.GetName(), 0);
                             imbaseKEY = Cmp.GetAttributeValue("Imbase_KEY");
                             DoItAgain = true;
-                        }         
-                        devList.Add(new E3Device(placedName, new string[] { Dev.GetComponentName(), imbaseKEY, Cmp.GetAttributeValue("Description"), Dev.GetAttributeValue("Primechanie"), Dev.GetAttributeValue("Исполнение")}, pinName));
+                        }
+                        // devList.Add(new E3Device(placedName, new string[] {Dev.GetComponentName(), imbaseKEY, Cmp.GetAttributeValue("Description"), Dev.GetAttributeValue("Primechanie"), Dev.GetAttributeValue("Исполнение")}, pinName));
+                        if (imbaseKEY.Length == "i609010608038500008C".Length)
+                        {
+                            devList.Add(new E3Device(placedName, new string[] { Dev.GetComponentName(), imbaseKEY, ImBaseEx.GetFullDesignation(imbaseKEY), Dev.GetAttributeValue("Primechanie"), Dev.GetAttributeValue("Исполнение") }, pinName));
+                        }
+                        else
+                        {
+                            devList.Add(new E3Device(placedName, new string[] { Dev.GetComponentName(), imbaseKEY, Cmp.GetAttributeValue("Description"), Dev.GetAttributeValue("Primechanie"), Dev.GetAttributeValue("Исполнение") }, pinName));
+                        }
+
                     }
                     if (DoItAgain)
                     {
@@ -103,7 +112,8 @@ namespace E3Namespace
                 }
             }
             // Сортировка устройств
-            devList.Sort(delegate (E3Device x, E3Device y) {
+            devList.Sort(delegate (E3Device x, E3Device y)
+            {
                 if (x.IsTerminal() && x.Name == y.Name)
                 {
                     if (x.SortValue() == y.SortValue())
@@ -124,7 +134,7 @@ namespace E3Namespace
 
             foreach (E3Device dev in devList)
             {
-                Console.WriteLine(dev.PlacedName());
+             //   Console.WriteLine(dev);
             }
             Debug.Flush();
         }
@@ -135,20 +145,21 @@ namespace E3Namespace
         public string Name { get; set; }
         public string PinName { get; set; }
         public string[] Properties { get; set; }
-        public bool IsTerminal() => PinName != null;        
-        public string PlacedName() => IsTerminal() ? Name + ":" + PinName : Name ;        
-        public int SortValue() =>  Convert.ToInt32(Regex.Replace(PinName, @"\D" , "" , RegexOptions.IgnoreCase));        
+        public bool IsTerminal() => PinName != null;
+        public string PlacedName() => IsTerminal() ? Name + ":" + PinName : Name;
+        public int SortValue() => Convert.ToInt32(Regex.Replace(PinName, @"\D", "", RegexOptions.IgnoreCase));
+        public override string ToString() => Name + "|" + PinName + "|" + string.Join("|", Properties);
 
-        public E3Device() : this("Неизвестно") { }   
+        public E3Device() : this("Неизвестно") { }
         public E3Device(string name)
         {
             this.Name = name;
-        }   
-        public E3Device(string name, string[] properties) 
+        }
+        public E3Device(string name, string[] properties)
         {
             this.Name = name;
-            this.Properties = properties;            
-        }        
+            this.Properties = properties;
+        }
         public E3Device(string name, string[] properties, string pinName)
         {
             this.Name = name;

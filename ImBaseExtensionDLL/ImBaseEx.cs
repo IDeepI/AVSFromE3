@@ -6,21 +6,23 @@ namespace ImBaseExtensionDLL
 {
     public static class ImBaseEx
     {
-        public static ImbaseApplicationClass ImApplication = new ImbaseApplicationClass();
-        public static ImDataBaseClass ImDataBase = new ImDataBaseClass();
+        public static ImbaseApplicationClass ImApplication;
+        public static ImDataBaseClass ImDataBase;
 
         public static void CloseImbaseConnection()
         {
             ImApplication = null;
             ImDataBase = null;
         }
-        //  public static ImbaseCatalogs Catalogs;       
-        //  public static ImbaseCatalog Catalog;
-        //  public static ImbaseFolder Folder;
-        //  public static IImbaseKey ImBase;            
 
         public static string GetFullDesignation(string ImCode)
         {
+            ImDataBase = new ImDataBaseClass();
+            while (ImDataBase.Ready() != 1)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+
             ImDataBase.GetKeyInfo(ImCode, out string TableRecord, out string CatalogRecord, out string KeysList);
             //      Debug.WriteLine(TableRecord);
             //      Debug.WriteLine(CatalogRecord);
@@ -40,12 +42,13 @@ namespace ImBaseExtensionDLL
 
         public static bool CheckImbaseConnection()
         {
+            ImApplication = new ImbaseApplicationClass();
             bool Done = false;
             try
             {
                 // Создаем новое подключение, если указатель нулевой
                 //
-                // if (ImApplication == null) ImApplication = CoImbaseApplication.Create();
+                //if (ImApplication == null) ImApplication = CoImbaseApplication.Create();
                 // Проверяем состояние сервера
                 while (!Done)
                 { // Опрос состояния

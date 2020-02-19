@@ -1,51 +1,28 @@
 ﻿using System;
 using System.Diagnostics;
-using ImBaseExtensionDLL;
 using E3Namespace;
+using ImBaseExtensionDLL;
 
 namespace AVSFromE3
 {   
         class Program
-        {
-            public static string[] ImCodes =
-            {
-            "i609010608031E000187",
-            "i6090106080E9B000024",
-            "i60901060803BB000008",
-            "i60901060803330000C2",
-            "i60901060802950000EB",
-            "i609010608034B0000ED",
-            "i6090106080E95000098",
-            "i60901060803150001A9",
-            "i60901060803150001AA",
-            "i6090106080339000110",
-            "i609010608033D0001A8",
-            "i6090106080ED4000109",
-            "i6090106080ED400010A",
-            "i609010608035700003F",
-            "i6090106080ED500005D",
-            "i609010608038E00004B",
-            "i609010608028B0004E7",
-            "i6090106080F0F000015",
-            "i6090106080343000106",
-            "i6090106080343000107",
-            "i60901060803450000E4",
-            "i6090106080EAD000012",
-            "i60901060803340000D2",
-            "i60901060802940001C7",
-            "i609010608036500002A",
-            "i6090106080365000022",
-            "i6090106080E5900000C"
-        };
+        {            
 
             static readonly DateTime TimeStart = DateTime.Now;
             static void Main()
             {
                 Debug.WriteLine(TimeStart);
 
+          //  if (ImBaseEx.CheckImbaseConnection())
+          //  {
                 E3Devices.GetDevices();
 
+                Debug.WriteLine(E3Devices.devList[1]);
+                Debug.WriteLine(DateTime.Now - TimeStart);
 
+               // ImBaseEx.CloseImbaseConnection();
+          //  }
+           
             /*
                 if (ImBaseEx.CheckImbaseConnection())
                  {
@@ -58,7 +35,7 @@ namespace AVSFromE3
                  }
                  
                 */
-            }
+        }
         }
     }
 
