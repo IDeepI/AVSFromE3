@@ -19,6 +19,12 @@ namespace E3Namespace
         public static e3DbeApplication e3Dbe;// объект приложения
         public static List<E3Device> devList = new List<E3Device>();
 
+        ///////////////////////////////////////
+        public static string prjNum;
+        public static string placename;
+        public static string executor;
+        /////////////////////////////////////////
+
         public static void GetDevices()
         {
             // Объекты массивов Id
@@ -42,7 +48,13 @@ namespace E3Namespace
             Object PinIds = new Object();
             string imbaseKEY;
             bool DoItAgain = false;
-            
+
+            ///////////////////////////////////////
+            prjNum = Prj.GetAttributeValue("NUMPROJ") + " ПЭ3";
+            placename = Prj.GetAttributeValue("OBOZNACHENIE") + " " + Prj.GetAttributeValue("Uslovn_obozn") + " " + Prj.GetAttributeValue("Name_of_schemes") + ". Перечень элементов";
+            executor = Prj.GetAttributeValue("vyp");
+            /////////////////////////////////////////
+
 
 
             foreach (var devId in (Array)DevIds)
@@ -134,7 +146,7 @@ namespace E3Namespace
 
             foreach (E3Device dev in devList)
             {
-             //   Console.WriteLine(dev);
+                //   Console.WriteLine(dev);
             }
             Debug.Flush();
         }
