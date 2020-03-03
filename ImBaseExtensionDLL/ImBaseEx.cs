@@ -14,29 +14,25 @@ namespace ImBaseExtensionDLL
             ImApplication = null;
             ImDataBase = null;
         }
-
+        // Полное обозначение
         public static string GetFullDesignation(string ImCode)
         {
+            // Подключаем базу
             ImDataBase = new ImDataBaseClass();
             while (ImDataBase.Ready() != 1)
             {
                 System.Threading.Thread.Sleep(10);
             }
-
+            // Получаем данные по клюючу ImBase
             ImDataBase.GetKeyInfo(ImCode, out string TableRecord, out string CatalogRecord, out string KeysList);
             //      Debug.WriteLine(TableRecord);
             //      Debug.WriteLine(CatalogRecord);
             //      Debug.WriteLine(KeysList);
 
-            int startIndex = CatalogRecord.IndexOf("\"ПОЛНОЕ ОБОЗНАЧЕНИЕ=") + 20;
-            //  Debug.WriteLine(startIndex);
-
+            int startIndex = CatalogRecord.IndexOf("\"ПОЛНОЕ ОБОЗНАЧЕНИЕ=") + 20;  
             int endIndex = CatalogRecord.IndexOf("\",КЛАСС=");
-            //  Debug.WriteLine(endIndex);
-
-            string FullDesignation = CatalogRecord.Substring(startIndex, endIndex - startIndex);
-
-            return FullDesignation;
+            // Возвращаем ПОЛНОЕ ОБОЗНАЧЕНИЕ
+            return CatalogRecord.Substring(startIndex, endIndex - startIndex);
         }
 
 

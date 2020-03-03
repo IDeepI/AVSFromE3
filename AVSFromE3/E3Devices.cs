@@ -18,6 +18,7 @@ namespace E3Namespace
         public static e3Pin Pin;    // объект 
         public static e3DbeApplication e3Dbe;// объект приложения
         public static List<E3Device> devList = new List<E3Device>();
+        public static List<E3Device> devListSorted = new List<E3Device>();
 
         ///////////////////////////////////////
         public static string prjNum;
@@ -106,13 +107,30 @@ namespace E3Namespace
                             DoItAgain = true;
                         }
                         // devList.Add(new E3Device(placedName, new string[] {Dev.GetComponentName(), imbaseKEY, Cmp.GetAttributeValue("Description"), Dev.GetAttributeValue("Primechanie"), Dev.GetAttributeValue("Исполнение")}, pinName));
+
+
                         if (imbaseKEY.Length == "i609010608038500008C".Length)
                         {
-                            devList.Add(new E3Device(placedName, new string[] { Dev.GetComponentName(), imbaseKEY, ImBaseEx.GetFullDesignation(imbaseKEY), Dev.GetAttributeValue("Primechanie"), Dev.GetAttributeValue("Исполнение") }, pinName));
+
+                            if (isTerminal)
+                            {
+                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "6",  placedName + ":" + pinName, ImBaseEx.GetFullDesignation(imbaseKEY), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                            }
+                            else
+                            {
+                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "6", placedName, ImBaseEx.GetFullDesignation(imbaseKEY), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                            }
                         }
                         else
                         {
-                            devList.Add(new E3Device(placedName, new string[] { Dev.GetComponentName(), imbaseKEY, Cmp.GetAttributeValue("Description"), Dev.GetAttributeValue("Primechanie"), Dev.GetAttributeValue("Исполнение") }, pinName));
+                            if (isTerminal)
+                            {
+                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "5",  placedName + ":" + pinName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                            }
+                            else
+                            {
+                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "5",  placedName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                            }
                         }
 
                     }
@@ -128,44 +146,255 @@ namespace E3Namespace
             {
                 if (x.IsTerminal() && x.Name == y.Name)
                 {
-                    if (x.SortValue() == y.SortValue())
+                    if (x.SortPinValue() == y.SortPinValue())
                     {
                         return x.PinName.CompareTo(y.PinName);
                     }
                     else
                     {
-                        return x.SortValue().CompareTo(y.SortValue());
+                        return x.SortPinValue().CompareTo(y.SortPinValue());
                     }
-
                 }
                 else
                 {
-                    return x.Name.CompareTo(y.Name);
+                    if (GetLetter(x.Name) == GetLetter(y.Name))
+                    {
+                        return x.SortNameValue().CompareTo(y.SortNameValue());
+                    }
+                    else
+                    {
+                        return x.Name.CompareTo(y.Name);
+                    }                    
                 }
             });
 
             foreach (E3Device dev in devList)
             {
-                //   Console.WriteLine(dev);
-            }
+                //   Console.WriteLine(dev);                
+                SortDevList(dev);
+            }     
+
             Debug.Flush();
+        }
+       
+        static string GetLetter(string textToParse)
+        {
+            Regex laterEx = new Regex(@"(?i)([a-z]+)(?:\d+)");
+
+            MatchCollection matches = laterEx.Matches(textToParse);
+            if (matches.Count > 0)
+            {
+                foreach (Match match in matches)
+                {
+                   // Debug.WriteLine(match.Groups[1].Value);
+                    return match.Groups[1].Value;
+                }
+            }
+            return "";
+        }
+
+        static int GetNumber(string textToParse)
+        {
+            Regex numberEx = new Regex(@"(?i)(?:[a-z]+)(\d+)");
+
+            MatchCollection matches = numberEx.Matches(textToParse);
+            if (matches.Count > 0)
+            {
+                foreach (Match match in matches)
+                {
+                   // Debug.WriteLine(match.Groups[1].Value);
+                    return Int32.Parse(match.Groups[1].Value);
+                }
+            }
+            return 1;
+        }
+
+        static int GetPinNumber(string textToParse)
+        {
+            Regex numberEx = new Regex(@"(?::)(\d+)");
+
+            MatchCollection matches = numberEx.Matches(textToParse);
+            if (matches.Count > 0)
+            {
+                foreach (Match match in matches)
+                {
+                   // Debug.WriteLine(match.Groups[1].Value);
+                    return Int32.Parse(match.Groups[1].Value);
+                }
+            }
+            return 1;
+        }
+
+        static bool CheckComma(string textToParse)
+        {
+            Regex numberEx = new Regex(@"(,\d+)$");
+
+            MatchCollection matches = numberEx.Matches(textToParse);
+            if (matches.Count > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        static bool CheckColon(string textToParse)
+        {
+            Regex numberEx = new Regex(@"(\.\.\d+)$");
+
+            MatchCollection matches = numberEx.Matches(textToParse);
+            if (matches.Count > 0)
+            {
+                return true;
+            }
+            return false;
+        } 
+        
+        static int GetPreLastNumber(string textToParse)
+        {
+            Regex numberEx = new Regex(@"(?i)(\d+)$");
+
+            MatchCollection matches = numberEx.Matches(textToParse);
+            if (matches.Count > 0)
+            {
+                foreach (Match match in matches)
+                {
+                   // Debug.WriteLine(match.Groups[1].Value);
+                    return Int32.Parse(match.Groups[1].Value);
+                }
+            }
+            return 1;
+        }
+
+
+
+        static string GetShorter(string textToParse)
+        {
+            string patern = (@"(?i)(\.\.\d+)$|(,\d+)$");
+            return Regex.Replace(textToParse, patern, "");
+        }
+
+        static int GetNumberOnly(string textToParse)
+        {
+            string patern = (@"(?i)(\D+)");
+            return Int32.Parse(Regex.Replace(textToParse, patern, ""));
+        }
+
+
+
+
+        static void SortDevList(E3Device device)
+        {
+            string placeName;
+
+            // Проверям есть ли устройство с таким описанием
+            E3Device tmpDev = devListSorted.Find(x => x.Properties[3].Contains(device.Properties[3])); // Designation
+            if (tmpDev != null)
+            {                
+                placeName = tmpDev.Properties[2];
+
+                // Если есть добавляем к существующему устройству
+                if (device.IsTerminal())
+                {
+                    // Если имена совпадают
+                    if (tmpDev.Name == device.Name)
+                    {
+                        // Номера отличаются на 1
+                        if (GetNumberOnly(tmpDev.PinName) == GetNumberOnly(device.PinName) - 1)
+                        {
+                            // две точки уже есть
+                            if (CheckColon(placeName))
+                            {
+                                placeName = GetShorter(placeName) + ".." + device.PinName; // placedName + ":" + pinName
+                            }
+                            // Запятая уже есть и число 3-е подряд
+                            else if (CheckComma(placeName) && GetPreLastNumber(GetShorter(placeName)) == (GetNumberOnly(device.PinName) - 2))
+                            {
+                                placeName = GetShorter(placeName) + ".." + device.PinName; // placedName + ":" + pinName
+                            }
+                            else
+                            {
+                                placeName =placeName + "," + device.PinName; // placedName + ":" + pinName
+                            }
+                            
+                        }
+                        else
+                        {
+                            placeName = placeName + "," + device.PinName; // placedName + ":" + pinName
+                        }
+
+                    }
+                    else
+                    {
+                        placeName += "," + device.Name + ":" + device.PinName;// placedName + ":" + pinName
+                    }
+                }
+                else
+                {
+                    // Если имена совпадают
+                    if (GetLetter(tmpDev.Name) == GetLetter(device.Name))
+                    {
+                        // Номера отличаются на 1
+                        if (GetNumberOnly(tmpDev.Name) == GetNumberOnly(device.Name) - 1)
+                        {        
+                            // две точки уже есть
+                            if (CheckColon(placeName))
+                            {
+                                placeName = GetShorter(placeName) + ".." + GetNumber(device.Name); // placedName + ":" + pinName
+                            }
+                            // Запятая уже есть и число 3-е подряд
+                            else if (CheckComma(placeName) && GetPreLastNumber(GetShorter(placeName)) == (GetNumberOnly(device.Name) - 2))
+                            {
+                                placeName = GetShorter(placeName) + ".." + GetNumber(device.Name); // placedName + ":" + pinName
+                            }
+                            else
+                            {
+                                placeName = placeName + "," + GetNumber(device.Name); // placedName + ":" + pinName
+                            }
+                        }
+                        else
+                        {
+                            placeName += "," + GetNumber(device.Name); // placedName 
+                        }
+                    }
+                    else
+                    {
+                        placeName += "," + device.Name;// placedName 
+                    }
+                }
+                tmpDev.Properties[2] = placeName;
+                tmpDev.PinName = device.PinName; // Для последующей сортировки
+                tmpDev.Name = device.Name; // Для последующей сортировки
+
+                tmpDev.Properties[4] = (Int32.Parse(tmpDev.Properties[4]) + 1).ToString(); // Count
+                tmpDev.Properties[6] = (Int32.Parse(tmpDev.Properties[6]) + 1).ToString(); // Count
+            }
+            // Если нет то добавляем
+            else
+            {
+                //  Добавляем новое устройство
+                devListSorted.Add(device);
+            }
         }
     }
 
     public class E3Device
     {
         public string Name { get; set; }
+        public string Count { get; set; }
         public string PinName { get; set; }
         public string[] Properties { get; set; }
         public bool IsTerminal() => PinName != null;
         public string PlacedName() => IsTerminal() ? Name + ":" + PinName : Name;
-        public int SortValue() => Convert.ToInt32(Regex.Replace(PinName, @"\D", "", RegexOptions.IgnoreCase));
-        public override string ToString() => Name + "|" + PinName + "|" + string.Join("|", Properties);
+        public int SortPinValue() => Convert.ToInt32(Regex.Replace(PinName, @"\D", "", RegexOptions.IgnoreCase));
+        public int SortNameValue() => Convert.ToInt32(Regex.Replace(Name, @"\D", "", RegexOptions.IgnoreCase));
+        public override string ToString() => Name + "|" + string.Join("|", Properties);
 
         public E3Device() : this("Неизвестно") { }
         public E3Device(string name)
         {
             this.Name = name;
+            this.Count = "1";
+
         }
         public E3Device(string name, string[] properties)
         {
