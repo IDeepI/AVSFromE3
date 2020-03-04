@@ -22,12 +22,17 @@ namespace AVSFromE3
             Debug.WriteLine(TimeStart);
             // Собираем данные устройств
             E3Devices.GetDevices();
-
             Debug.WriteLine(DateTime.Now - TimeStart);
 
-            string filename = "d:\\SAVE\\DOC\\1test\\Test Лист 1.PE";
+            string filename = E3Devices.AVSFileNew;
+            Debug.WriteLine(filename);
+            //"d:\\SAVE\\DOC\\1test\\Test Лист 1.PE";
+
             // Пишем в файл
             WriteBinaryFile(filename, GeneratePE());
+
+            // Загружаем файл в E3
+            E3Devices.LoadAvsToE3();
         }
         // Собираем byte массив
         static byte[] GeneratePE()

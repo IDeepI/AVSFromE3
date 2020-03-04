@@ -8,9 +8,17 @@ using System.Text.RegularExpressions;
 
 namespace E3Namespace
 {
+    public static class StringExtensions
+    {
+        public static string Right(this string str, int length)
+        {
+            return str.Substring(str.Length - length, length);
+        }
+    }
     public static class E3Devices
     {
         public static e3Application App; // объект приложения
+        public static e3ExternalDocument Ex; // объект приложения
         public static e3Job Prj; // объект проекта
         public static e3Symbol Sym;	// объект 
         public static e3Device Dev;	// объект 
@@ -24,7 +32,44 @@ namespace E3Namespace
         public static string prjNum;
         public static string placename;
         public static string executor;
+        public static string AVSName;
+        public static string AVSFileNew;
         /////////////////////////////////////////
+        public static void LoadAvsToE3()
+        {
+            App?.PutInfo(0, "Load AVS to E3!");
+            Ex = (e3ExternalDocument)Prj.CreateExternalDocumentObject();
+            // Объекты массивов Id
+            Object exIds = new Object();
+            string pename = "";
+            Prj.GetExternalDocumentIds(ref exIds);
+            // Удаляем существующий PE
+            try
+            {
+                foreach (var exId in (Array)exIds)
+                {
+                    if (exId != null)
+                    {
+                        Ex.SetId((int)exId);
+                        pename = Ex.GetName();
+                        if (pename.Right(3) == ".PE")
+                        {
+                            Ex.Delete();
+                            App.PutInfo(0, $"Deleted {pename}");
+                        }
+                    }                    
+                }
+            }
+            catch (Exception e)
+            {
+                App.PutInfo(0, $"Error with {pename}");
+                App.PutInfo(0, $"First exception caught. {e}");
+            }
+
+            Ex.Create(0, AVSName, AVSFileNew); //' Вставить новый AVS
+
+            App?.PutInfo(0, $"File insert - {AVSFileNew}");
+        }
 
         public static void GetDevices()
         {
@@ -35,7 +80,7 @@ namespace E3Namespace
 
             // Подключаем E3
             App = AppConnect.ToE3();
-            App?.PutInfo(0, "Starting E3Devices!");
+            App?.PutInfo(0, "Starting GetDevices!");
             Prj = (e3Job)App?.CreateJobObject();
             Sym = (e3Symbol)Prj.CreateSymbolObject();
             Dev = (e3Device)Prj.CreateDeviceObject();
@@ -54,6 +99,17 @@ namespace E3Namespace
             prjNum = Prj.GetAttributeValue("NUMPROJ") + " ПЭ3";
             placename = Prj.GetAttributeValue("OBOZNACHENIE") + " " + Prj.GetAttributeValue("Uslovn_obozn") + " " + Prj.GetAttributeValue("Name_of_schemes") + ". Перечень элементов";
             executor = Prj.GetAttributeValue("vyp");
+
+
+            if (Prj.GetName().Length > 18)
+            {
+                AVSName = Prj.GetName().Substring(0, 18) + ".PE";
+            }
+            else
+            {
+                AVSName = Prj.GetName() + ".PE";
+            }
+            AVSFileNew = Prj.GetPath() + AVSName; //'Имя файла AVS(без пробелов) 
             /////////////////////////////////////////
 
 
@@ -114,7 +170,7 @@ namespace E3Namespace
 
                             if (isTerminal)
                             {
-                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "6",  placedName + ":" + pinName, ImBaseEx.GetFullDesignation(imbaseKEY), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "6", placedName + ":" + pinName, ImBaseEx.GetFullDesignation(imbaseKEY), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
                             }
                             else
                             {
@@ -125,11 +181,11 @@ namespace E3Namespace
                         {
                             if (isTerminal)
                             {
-                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "5",  placedName + ":" + pinName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "5", placedName + ":" + pinName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
                             }
                             else
                             {
-                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "5",  placedName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "5", placedName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
                             }
                         }
 
@@ -164,7 +220,7 @@ namespace E3Namespace
                     else
                     {
                         return x.Name.CompareTo(y.Name);
-                    }                    
+                    }
                 }
             });
 
@@ -172,11 +228,11 @@ namespace E3Namespace
             {
                 //   Console.WriteLine(dev);                
                 SortDevList(dev);
-            }     
+            }
 
             Debug.Flush();
         }
-       
+
         static string GetLetter(string textToParse)
         {
             Regex laterEx = new Regex(@"(?i)([a-z]+)(?:\d+)");
@@ -186,7 +242,7 @@ namespace E3Namespace
             {
                 foreach (Match match in matches)
                 {
-                   // Debug.WriteLine(match.Groups[1].Value);
+                    // Debug.WriteLine(match.Groups[1].Value);
                     return match.Groups[1].Value;
                 }
             }
@@ -202,7 +258,7 @@ namespace E3Namespace
             {
                 foreach (Match match in matches)
                 {
-                   // Debug.WriteLine(match.Groups[1].Value);
+                    // Debug.WriteLine(match.Groups[1].Value);
                     return Int32.Parse(match.Groups[1].Value);
                 }
             }
@@ -218,7 +274,7 @@ namespace E3Namespace
             {
                 foreach (Match match in matches)
                 {
-                   // Debug.WriteLine(match.Groups[1].Value);
+                    // Debug.WriteLine(match.Groups[1].Value);
                     return Int32.Parse(match.Groups[1].Value);
                 }
             }
@@ -227,7 +283,7 @@ namespace E3Namespace
 
         static bool CheckComma(string textToParse)
         {
-            Regex numberEx = new Regex(@"(,\d+)$");
+            Regex numberEx = new Regex(@"(,\w+:*\w*)$");
 
             MatchCollection matches = numberEx.Matches(textToParse);
             if (matches.Count > 0)
@@ -239,7 +295,7 @@ namespace E3Namespace
 
         static bool CheckColon(string textToParse)
         {
-            Regex numberEx = new Regex(@"(\.\.\d+)$");
+            Regex numberEx = new Regex(@"(\.\.\w+:*\w*)$");
 
             MatchCollection matches = numberEx.Matches(textToParse);
             if (matches.Count > 0)
@@ -247,8 +303,8 @@ namespace E3Namespace
                 return true;
             }
             return false;
-        } 
-        
+        }
+
         static int GetPreLastNumber(string textToParse)
         {
             Regex numberEx = new Regex(@"(?i)(\d+)$");
@@ -258,7 +314,7 @@ namespace E3Namespace
             {
                 foreach (Match match in matches)
                 {
-                   // Debug.WriteLine(match.Groups[1].Value);
+                    // Debug.WriteLine(match.Groups[1].Value);
                     return Int32.Parse(match.Groups[1].Value);
                 }
             }
@@ -269,7 +325,7 @@ namespace E3Namespace
 
         static string GetShorter(string textToParse)
         {
-            string patern = (@"(?i)(\.\.\d+)$|(,\d+)$");
+            string patern = (@"(?i)(\.\.\w+:*\w*)$|(,\w+:*\w*)$");
             return Regex.Replace(textToParse, patern, "");
         }
 
@@ -289,7 +345,7 @@ namespace E3Namespace
             // Проверям есть ли устройство с таким описанием
             E3Device tmpDev = devListSorted.Find(x => x.Properties[3].Contains(device.Properties[3])); // Designation
             if (tmpDev != null)
-            {                
+            {
                 placeName = tmpDev.Properties[2];
 
                 // Если есть добавляем к существующему устройству
@@ -304,28 +360,28 @@ namespace E3Namespace
                             // две точки уже есть
                             if (CheckColon(placeName))
                             {
-                                placeName = GetShorter(placeName) + ".." + device.PinName; // placedName + ":" + pinName
+                                placeName = GetShorter(placeName) + ".." + device.Name + ":" + device.PinName; // placedName + ":" + pinName
                             }
                             // Запятая уже есть и число 3-е подряд
                             else if (CheckComma(placeName) && GetPreLastNumber(GetShorter(placeName)) == (GetNumberOnly(device.PinName) - 2))
                             {
-                                placeName = GetShorter(placeName) + ".." + device.PinName; // placedName + ":" + pinName
+                                placeName = GetShorter(placeName) + ".." + device.Name + ":" + device.PinName; // placedName + ":" + pinName
                             }
                             else
                             {
-                                placeName =placeName + "," + device.PinName; // placedName + ":" + pinName
+                                placeName = placeName + "," + device.Name + ":" + device.PinName; // placedName + ":" + pinName
                             }
-                            
+
                         }
                         else
                         {
-                            placeName = placeName + "," + device.PinName; // placedName + ":" + pinName
+                            placeName = placeName + "," + device.Name + ":" + device.PinName; // placedName + ":" + pinName
                         }
 
                     }
                     else
                     {
-                        placeName += "," + device.Name + ":" + device.PinName;// placedName + ":" + pinName
+                        placeName += "," + device.Name + ":" + device.Name + ":" + device.PinName;// placedName + ":" + pinName
                     }
                 }
                 else
@@ -335,25 +391,25 @@ namespace E3Namespace
                     {
                         // Номера отличаются на 1
                         if (GetNumberOnly(tmpDev.Name) == GetNumberOnly(device.Name) - 1)
-                        {        
+                        {
                             // две точки уже есть
                             if (CheckColon(placeName))
                             {
-                                placeName = GetShorter(placeName) + ".." + GetNumber(device.Name); // placedName + ":" + pinName
+                                placeName = GetShorter(placeName) + ".." + (device.Name); // placedName + ":" + pinName
                             }
                             // Запятая уже есть и число 3-е подряд
                             else if (CheckComma(placeName) && GetPreLastNumber(GetShorter(placeName)) == (GetNumberOnly(device.Name) - 2))
                             {
-                                placeName = GetShorter(placeName) + ".." + GetNumber(device.Name); // placedName + ":" + pinName
+                                placeName = GetShorter(placeName) + ".." + (device.Name); // placedName + ":" + pinName
                             }
                             else
                             {
-                                placeName = placeName + "," + GetNumber(device.Name); // placedName + ":" + pinName
+                                placeName = placeName + "," + (device.Name); // placedName + ":" + pinName
                             }
                         }
                         else
                         {
-                            placeName += "," + GetNumber(device.Name); // placedName 
+                            placeName += "," + (device.Name); // placedName 
                         }
                     }
                     else
