@@ -31,31 +31,35 @@ namespace AVSFromE3
             }
 
             Debug.WriteLine(TimeStart);
-            
-            // Собираем данные устройств
-            E3Devices.GetDevices();
-            
 
-            string filename = E3Devices.AVSFileNew;
-            //Debug.WriteLine(filename);
-            //"d:\\SAVE\\DOC\\1test\\Test Лист 1.PE";
+            if (E3Devices.App != null)
+            {
+                // Собираем данные устройств
+                E3Devices.GetDevices();
 
-            // Пишем в файл
-            WriteBinaryFile(filename, GeneratePE());
 
-            // Загружаем файл в E3
-            E3Devices.LoadAvsToE3();
+                string filename = E3Devices.AVSFileNew;
+                //Debug.WriteLine(filename);
+                //"d:\\SAVE\\DOC\\1test\\Test Лист 1.PE";
+
+                // Пишем в файл
+                WriteBinaryFile(filename, GeneratePE());
+
+                // Загружаем файл в E3
+                E3Devices.LoadAvsToE3();
+            }
+
             Debug.WriteLine(DateTime.Now - TimeStart);
         }
         // Собираем byte массив
         static byte[] GeneratePE()
-        {                       
+        {
 
             // Создаем массив данных устройств
             GenOrdinarLine(ref listOfBytes);
 
             // Линий в паспорте
-            byte[] lineInPE = {(byte)(listOfBytes.Count)}; // 
+            byte[] lineInPE = { (byte)(listOfBytes.Count) }; // 
             string lineInPasport = "11"; // + 1 если есть исполнение            
 
             // Константы
@@ -90,46 +94,19 @@ namespace AVSFromE3
             titleListOfBytes.Add(GetByteArrayFromStringOfNumbers("41 56 53 20 35 2E 37 2E 38 32 75 20 4E 65 74 77 6F 72 6B 20 45 78 74 65 6E 64 65 64 20 3A 20 30 35 2E 31 32 2E 32 30 31 38 20 31 36 3A 32 35 3A 30 30 00 "));    // 24
             titleListOfBytes.Add(GetByteArrayFromStringOfNumbers("30"));    // 25
 
-            //Call GenTitleSix(25)
-
-            // titleListOfBytes.Add(GetByteArrayFromStringOfNumbers(""));
             titleListOfBytes.Add(GetByteArrayFromStringOfNumbers("")); // 27
 
 
             titleListOfBytes.Insert(4, GenTitleCnt()); // 6
 
 
-            for (int j = titleListOfBytes.Count-1; j >= 0; j--)
+            for (int j = titleListOfBytes.Count - 1; j >= 0; j--)
             {
                 listOfBytes.Insert(0, titleListOfBytes[j]);
             }
 
             listOfBytes.Add(GetByteArrayFromStringOfNumbers("3C 4E 4F 5F 49 4E 49 5F 53 45 43 54 49 4F 4E 3E"));
 
-            /*          
-                  Title(2) = HexD(line - 1)//' Колличество строк
-                  Title(7) = "0F841A01020910121B080C7B7C7AA9A6CC"
-                  Title(22) = "313800"
-                  Title(25) = "3000"
-                  Erase symbcnt
-
-              Totalsymbcnt = 0
-              For p = 8 to 30
-                  If Title(p) <> "" Then
-                      symbcnttmp = Len(Title(p)) / 2
-                      Totalsymbcnt = Totalsymbcnt + symbcnttmp
-                      symbcnt(p) = Totalsymbcnt
-
-                      IF p<TitleCnt Then
-                          Title(6) = Title(6) & shiftHex(symbcnt(p)) '"9F00C300CB00D300DA00DD00E600E900EB00ED00440176010F84"
-                      End If
-                  End If
-              Next
-             Title(4) = shiftHex(Totalsymbcnt)     
-
-              Title(3) = "00000020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202349" & lineInPasport
-              Title(5) = HexD(IspLine) & "000000"'"00000000" '5D007E008800" ' 01 02 кол исп в групповая спецификация
-              */
 
             // Собираем все в один масссив 
             for (int i = 1; i < listOfBytes.Count; i++)
@@ -140,7 +117,7 @@ namespace AVSFromE3
                 }
                 catch
                 {
-                   // Debug.WriteLine($"Нет {i}-го члена массива.");
+                    // Debug.WriteLine($"Нет {i}-го члена массива.");
                 }
             }
 
@@ -151,18 +128,18 @@ namespace AVSFromE3
         {
             byte[] byteArray = new byte[0];
             int totalByte = 0;
-            for (int i = 5; i< titleListOfBytes.Count(); i++)
+            for (int i = 5; i < titleListOfBytes.Count(); i++)
             {
                 totalByte += titleListOfBytes[i].Length;
                 if (i < 21)
                 {
                     byteArray = byteArray.Concat(GetByteArrayFromInt(totalByte)).ToArray();
                 }
-                
+
             }
-            
+
             byteArray = GetByteArrayFromInt(totalByte)
-                .Concat(GetByteArrayFromStringOfNumbers("00 00 00 00"))                
+                .Concat(GetByteArrayFromStringOfNumbers("00 00 00 00"))
                 .Concat(byteArray)
                 .ToArray();
 
@@ -179,59 +156,106 @@ namespace AVSFromE3
                 Debug.WriteLine($"Свойство 2 - {device.Properties[2]}");    // Наименование
                 Debug.WriteLine($"Свойство 3 - {device.Properties[3]}");    // Примечание
                 Debug.WriteLine($"Свойство 4 - {device.Properties[4]}");    // Исполнение*/
-               // Debug.WriteLine($"Свойства - {device.ToString()}");    // 
+                // Debug.WriteLine($"Свойства - {device.ToString()}");    // 
 
                 int ispsymbCnt = 0;
                 string razdel = " ";
                 currentLine = currentLine + 1;
                 int symbInProp = 0;
+                int totalSymbInProp = 0;
                 int[] symbCnt = new int[9];
                 byte[][] propertiesByteArray = new byte[7][];
 
                 // Преобразуем свойства в byte[]
-                int n = 0;
+                int fieldCnt = 0;
                 foreach (string propertie in device.Properties)
                 {
-                    propertiesByteArray[n++] = GetByteArrayFromString(propertie);
+                    if (propertie != "Нет ключа Imbase")
+                    {
+                        propertiesByteArray[fieldCnt++] = GetByteArrayFromString(propertie);
+                    }
                 }
 
                 //  Считаем колличество символов в полях                       
 
                 for (int m = 0; m < propertiesByteArray.Count(); m++)
                 {
-                    symbInProp = propertiesByteArray[m].Length;
-                    symbCnt[m] = (m == 0) ? symbInProp : symbCnt[m - 1] + symbInProp; // Учитываем разделительные 00
+                    if (propertiesByteArray[m] != null)
+                    {
+                        symbInProp = propertiesByteArray[m].Length;
+                        symbCnt[m] = (m == 0) ? symbInProp : symbCnt[m - 1] + symbInProp; // Учитываем разделительные 00
+                        if (symbCnt[m] != 0)
+                        {
+                            totalSymbInProp = symbCnt[m];
+                        }
+                    }
+
                 }
 
-                arrLine.Add(
-                    GetByteArrayFromStringOfNumbers(LineBegin)
-                    .Concat(GenStr(symbCnt))
-                    .Concat(GetByteArrayFromStringOfNumbers(BeforImbase))
-                    .Concat(GetByteArrayFromString(device.Properties[0]))
-                    .Concat(GetByteArrayFromString(device.Properties[1]))
-                    .Concat(GetByteArrayFromString(device.Properties[2]))
-                    .Concat(GetByteArrayFromString(device.Properties[3]))
-                    .Concat(GetByteArrayFromString(device.Properties[4]))
-                    .Concat(GetByteArrayFromString(device.Properties[5]))
-                    .Concat(GetByteArrayFromString(device.Properties[6]))                                      
-                    .ToArray()
-                );
+                if (device.Properties[0] == "Нет ключа Imbase")
+                {
+                    arrLine.Add(
+                                        GetByteArrayFromStringOfNumbers(LineBegin)
+                                        .Concat(GenStr(symbCnt, fieldCnt, totalSymbInProp))
+                                        .Concat(GetByteArrayFromStringOfNumbers(BeforImbase))
+                                        .Concat(GetByteArrayFromString(device.Properties[1]))
+                                        .Concat(GetByteArrayFromString(device.Properties[2]))
+                                        .Concat(GetByteArrayFromString(device.Properties[3]))
+                                        .Concat(GetByteArrayFromString(device.Properties[4]))
+                                        .Concat(GetByteArrayFromString(device.Properties[5]))
+                                        .Concat(GetByteArrayFromString(device.Properties[6]))
+                                        .ToArray()
+                                        );
+                }
+                else
+                {
+                    arrLine.Add(
+                                        GetByteArrayFromStringOfNumbers(LineBegin)
+                                        .Concat(GenStr(symbCnt, fieldCnt, totalSymbInProp))
+                                        .Concat(GetByteArrayFromStringOfNumbers(BeforImbase))
+                                        .Concat(GetByteArrayFromString(device.Properties[0]))
+                                        .Concat(GetByteArrayFromString(device.Properties[1]))
+                                        .Concat(GetByteArrayFromString(device.Properties[2]))
+                                        .Concat(GetByteArrayFromString(device.Properties[3]))
+                                        .Concat(GetByteArrayFromString(device.Properties[4]))
+                                        .Concat(GetByteArrayFromString(device.Properties[5]))
+                                        .Concat(GetByteArrayFromString(device.Properties[6]))
+                                        .ToArray()
+                                    );
+                }
             }
         }
 
-        static byte[] GenStr(int[] symbCnt)
+        static byte[] GenStr(int[] symbCnt, int fieldCount, int totalSymbInProp)
         {
-            return GetByteArrayFromStringOfNumbers("07")
-            .Concat(GetByteArrayFromInt(symbCnt[6]))
-            .Concat(GetByteArrayFromStringOfNumbers("00 00 00 00"))
-            .Concat(GetByteArrayFromInt(symbCnt[0]))
-            .Concat(GetByteArrayFromInt(symbCnt[1]))
-            .Concat(GetByteArrayFromInt(symbCnt[2]))
-            .Concat(GetByteArrayFromInt(symbCnt[3]))
-            .Concat(GetByteArrayFromInt(symbCnt[4]))
-            .Concat(GetByteArrayFromInt(symbCnt[5]))
-            .Concat(GetByteArrayFromStringOfNumbers("08 0A 20 05 06 07"))
-            .ToArray();
+            if (fieldCount == 6)
+            {
+                return GetByteArrayFromStringOfNumbers("0" + fieldCount)
+                           .Concat(GetByteArrayFromInt(totalSymbInProp))
+                           .Concat(GetByteArrayFromStringOfNumbers("00 00 00 00"))
+                           .Concat(GetByteArrayFromInt(symbCnt[0]))
+                           .Concat(GetByteArrayFromInt(symbCnt[1]))
+                           .Concat(GetByteArrayFromInt(symbCnt[2]))
+                           .Concat(GetByteArrayFromInt(symbCnt[3]))
+                           .Concat(GetByteArrayFromInt(symbCnt[4]))                           
+                           .Concat(GetByteArrayFromStringOfNumbers("0A 20 05 06 07"))
+                           .ToArray();
+            }
+            else
+            {
+                return GetByteArrayFromStringOfNumbers("0" + fieldCount)
+                           .Concat(GetByteArrayFromInt(totalSymbInProp))
+                           .Concat(GetByteArrayFromStringOfNumbers("00 00 00 00"))
+                           .Concat(GetByteArrayFromInt(symbCnt[0]))
+                           .Concat(GetByteArrayFromInt(symbCnt[1]))
+                           .Concat(GetByteArrayFromInt(symbCnt[2]))
+                           .Concat(GetByteArrayFromInt(symbCnt[3]))
+                           .Concat(GetByteArrayFromInt(symbCnt[4]))
+                           .Concat(GetByteArrayFromInt(symbCnt[5]))
+                           .Concat(GetByteArrayFromStringOfNumbers("08 0A 20 05 06 07"))
+                           .ToArray();
+            }
+
         }
 
 
@@ -252,9 +276,9 @@ namespace AVSFromE3
         {
             string hexValue;
             byte[] bytes = BitConverter.GetBytes(res);
-           // Debug.WriteLine(BitConverter.ToString(bytes));
-            hexValue = BitConverter.ToString(bytes).Substring(0,5).Replace("-", " ");
-          //  Debug.WriteLine(hexValue);
+            // Debug.WriteLine(BitConverter.ToString(bytes));
+            hexValue = BitConverter.ToString(bytes).Substring(0, 5).Replace("-", " ");
+            //  Debug.WriteLine(hexValue);
             return GetByteArrayFromStringOfNumbers(hexValue);
         }
 
@@ -267,25 +291,26 @@ namespace AVSFromE3
 
             byte[] byteValue = new byte[(hexValuesSplit.Length)];
             int i = 0;
-            
+
             if (dataString != "")
             {
-                
+
                 foreach (string hex in hexValuesSplit)
-                {                    
+                {
                     if (hex.Length % 2 != 0)
                     {
                         hexToByte = "0" + hex;
-                    }else
+                    }
+                    else
                     {
                         hexToByte = hex;
                     }
                     // Convert the number expressed in base-16 to an integer.   
                     byteValue[i++] = (byte)Convert.ToInt32(hexToByte, 16);
                 }
-                
+
             }
-          
+
             return byteValue;
         }
 
@@ -304,7 +329,7 @@ namespace AVSFromE3
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
-            }            
+            }
         }
     }
 }

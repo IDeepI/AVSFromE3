@@ -196,11 +196,11 @@ namespace E3Namespace
                         {
                             if (isTerminal)
                             {
-                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "5", placedName + ":" + pinName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                                devList.Add(new E3Device(placedName, new string[] { "Нет ключа Imbase", "5", placedName + ":" + pinName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
                             }
                             else
                             {
-                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "5", placedName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                                devList.Add(new E3Device(placedName, new string[] { "Нет ключа Imbase", "5", placedName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
                             }
                         }
 
