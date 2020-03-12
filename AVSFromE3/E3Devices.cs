@@ -140,6 +140,7 @@ namespace E3Namespace
                     {
                         bool isTerminal = (Dev.IsTerminal() == 1 && Dev.IsTerminalBlock() != 1);
                         string pinName = null;
+                        string axapta = "";
                         // Позиционное обозначение
                         placedName = Dev.GetName();
                         // Если клемма
@@ -185,22 +186,22 @@ namespace E3Namespace
 
                             if (isTerminal)
                             {
-                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "6", placedName + ":" + pinName, ImBaseEx.GetFullDesignation(imbaseKEY), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "6", placedName + ":" + pinName, ImBaseEx.GetFullDesignation(imbaseKEY, ref axapta).Replace("\"\"", "\""), "1", Dev.GetAttributeValue("Primechanie"), axapta, "1" }, pinName));
                             }
                             else
                             {
-                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "6", placedName, ImBaseEx.GetFullDesignation(imbaseKEY), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                                devList.Add(new E3Device(placedName, new string[] { "I" + imbaseKEY, "6", placedName                , ImBaseEx.GetFullDesignation(imbaseKEY, ref axapta).Replace("\"\"", "\""), "1", Dev.GetAttributeValue("Primechanie"), axapta, "1"}, pinName));
                             }
                         }
                         else
                         {
                             if (isTerminal)
                             {
-                                devList.Add(new E3Device(placedName, new string[] { "Нет ключа Imbase", "5", placedName + ":" + pinName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                                devList.Add(new E3Device(placedName, new string[] { "Нет данных", "5", placedName + ":" + pinName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "Нет данных", "1" }, pinName));
                             }
                             else
                             {
-                                devList.Add(new E3Device(placedName, new string[] { "Нет ключа Imbase", "5", placedName, Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "1" }, pinName));
+                                devList.Add(new E3Device(placedName, new string[] { "Нет данных", "5", placedName                , Cmp.GetAttributeValue("Description"), "1", Dev.GetAttributeValue("Primechanie"), "Нет данных", "1" }, pinName));
                             }
                         }
 
@@ -437,7 +438,7 @@ namespace E3Namespace
                 tmpDev.Name = device.Name; // Для последующей сортировки
 
                 tmpDev.Properties[4] = (Int32.Parse(tmpDev.Properties[4]) + 1).ToString(); // Count
-                tmpDev.Properties[6] = (Int32.Parse(tmpDev.Properties[6]) + 1).ToString(); // Count
+                tmpDev.Properties[7] = (Int32.Parse(tmpDev.Properties[7]) + 1).ToString(); // Count
             }
             // Если нет то добавляем
             else

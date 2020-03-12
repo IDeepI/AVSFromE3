@@ -15,7 +15,7 @@ namespace ImBaseExtensionDLL
             ImDataBase = null;
         }
         // Полное обозначение
-        public static string GetFullDesignation(string ImCode)
+        public static string GetFullDesignation(string ImCode, ref string codeAxapta)
         {
             // Подключаем базу
             ImDataBase = new ImDataBaseClass();
@@ -26,12 +26,19 @@ namespace ImBaseExtensionDLL
             // Получаем данные по клюючу ImBase
             ImDataBase.GetKeyInfo(ImCode, out string TableRecord, out string CatalogRecord, out string KeysList);
             //      Debug.WriteLine(TableRecord);
-            //      Debug.WriteLine(CatalogRecord);
-            //      Debug.WriteLine(KeysList);
+            // Debug.WriteLine(CatalogRecord);
+            // Debug.WriteLine(KeysList);
 
-            int startIndex = CatalogRecord.IndexOf("\"ПОЛНОЕ ОБОЗНАЧЕНИЕ=") + 20;  
-            int endIndex = CatalogRecord.IndexOf("\",КЛАСС=");
+            // Возвращаем Код Axapta  "Код Axapta=757478.1336",ПРИМЕЧАНИЕ=
+            int startIndex = TableRecord.IndexOf("\"Код Axapta=") + 12;
+            int endIndex = TableRecord.IndexOf("\",", startIndex);
+            if (endIndex - startIndex > 0)
+            {               
+                codeAxapta = TableRecord.Substring(startIndex, endIndex - startIndex);
+            }
             // Возвращаем ПОЛНОЕ ОБОЗНАЧЕНИЕ
+            startIndex = CatalogRecord.IndexOf("\"ПОЛНОЕ ОБОЗНАЧЕНИЕ=") + 20;
+            endIndex = CatalogRecord.IndexOf("\",КЛАСС=", startIndex);
             return CatalogRecord.Substring(startIndex, endIndex - startIndex);
         }
 

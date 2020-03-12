@@ -164,13 +164,13 @@ namespace AVSFromE3
                 int symbInProp = 0;
                 int totalSymbInProp = 0;
                 int[] symbCnt = new int[9];
-                byte[][] propertiesByteArray = new byte[7][];
+                byte[][] propertiesByteArray = new byte[8][];
 
                 // Преобразуем свойства в byte[]
                 int fieldCnt = 0;
                 foreach (string propertie in device.Properties)
                 {
-                    if (propertie != "Нет ключа Imbase")
+                    if (propertie != "Нет данных")
                     {
                         propertiesByteArray[fieldCnt++] = GetByteArrayFromString(propertie);
                     }
@@ -192,7 +192,7 @@ namespace AVSFromE3
 
                 }
 
-                if (device.Properties[0] == "Нет ключа Imbase")
+                if (device.Properties[0] == "Нет данных")
                 {
                     arrLine.Add(
                                         GetByteArrayFromStringOfNumbers(LineBegin)
@@ -203,7 +203,7 @@ namespace AVSFromE3
                                         .Concat(GetByteArrayFromString(device.Properties[3]))
                                         .Concat(GetByteArrayFromString(device.Properties[4]))
                                         .Concat(GetByteArrayFromString(device.Properties[5]))
-                                        .Concat(GetByteArrayFromString(device.Properties[6]))
+                                        .Concat(GetByteArrayFromString(device.Properties[7]))
                                         .ToArray()
                                         );
                 }
@@ -220,6 +220,7 @@ namespace AVSFromE3
                                         .Concat(GetByteArrayFromString(device.Properties[4]))
                                         .Concat(GetByteArrayFromString(device.Properties[5]))
                                         .Concat(GetByteArrayFromString(device.Properties[6]))
+                                        .Concat(GetByteArrayFromString(device.Properties[7]))
                                         .ToArray()
                                     );
                 }
@@ -252,14 +253,13 @@ namespace AVSFromE3
                            .Concat(GetByteArrayFromInt(symbCnt[3]))
                            .Concat(GetByteArrayFromInt(symbCnt[4]))
                            .Concat(GetByteArrayFromInt(symbCnt[5]))
-                           .Concat(GetByteArrayFromStringOfNumbers("08 0A 20 05 06 07"))
+                           .Concat(GetByteArrayFromInt(symbCnt[6]))
+                           .Concat(GetByteArrayFromStringOfNumbers("08 0A 20 05 06 07 7D"))
                            .ToArray();
             }
 
         }
-
-
-
+               
         static byte[] GetByteArrayFromString(string res)
         {
             if (res == "" || res == null)
