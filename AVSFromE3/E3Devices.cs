@@ -35,6 +35,21 @@ namespace E3Namespace
         public static string AVSName;
         public static string AVSFileNew;
         /////////////////////////////////////////
+
+
+        public static void GetE3App()
+        {
+            // Подключаем E3
+            App = AppConnect.ToE3();
+            App?.PutInfo(0, "GetE3App!");
+        }
+        public static void GetE3App(string filePath)
+        {
+            // Подключаем E3
+            App = AppConnect.ToE3(filePath);
+            App?.PutInfo(0, $"GetE3App for {filePath}!");
+        }
+
         public static void LoadAvsToE3()
         {
             App?.PutInfo(0, "Load AVS to E3!");
@@ -57,7 +72,7 @@ namespace E3Namespace
                             Ex.Delete();
                             App.PutInfo(0, $"Deleted {pename}");
                         }
-                    }                    
+                    }
                 }
             }
             catch (Exception e)
@@ -68,8 +83,9 @@ namespace E3Namespace
 
             Ex.Create(0, AVSName, AVSFileNew); //' Вставить новый AVS
 
-            App?.PutInfo(0, $"File insert - {AVSFileNew}");
+            App?.PutInfo(0, $"File inserted - {AVSFileNew}");
         }
+
 
         public static void GetDevices()
         {
@@ -78,8 +94,7 @@ namespace E3Namespace
             //Object textIds = new Object();
             string placedName;
 
-            // Подключаем E3
-            App = AppConnect.ToE3();
+
             App?.PutInfo(0, "Starting GetDevices!");
             Prj = (e3Job)App?.CreateJobObject();
             Sym = (e3Symbol)Prj.CreateSymbolObject();

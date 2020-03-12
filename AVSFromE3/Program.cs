@@ -17,15 +17,27 @@ namespace AVSFromE3
         public static List<byte[]> listOfBytes = new List<byte[]>();
         public static List<byte[]> titleListOfBytes = new List<byte[]>(30);
 
-        static void Main()
+        static void Main(string[] args)
         {
+            if (args.Length == 1)
+            {
+                // Подключаем E3
+                E3Devices.GetE3App(args[0]);
+            }
+            else
+            {
+                // Подключаем E3
+                E3Devices.GetE3App();
+            }
+
             Debug.WriteLine(TimeStart);
+            
             // Собираем данные устройств
             E3Devices.GetDevices();
-            Debug.WriteLine(DateTime.Now - TimeStart);
+            
 
             string filename = E3Devices.AVSFileNew;
-            Debug.WriteLine(filename);
+            //Debug.WriteLine(filename);
             //"d:\\SAVE\\DOC\\1test\\Test Лист 1.PE";
 
             // Пишем в файл
@@ -33,6 +45,7 @@ namespace AVSFromE3
 
             // Загружаем файл в E3
             E3Devices.LoadAvsToE3();
+            Debug.WriteLine(DateTime.Now - TimeStart);
         }
         // Собираем byte массив
         static byte[] GeneratePE()
@@ -225,7 +238,7 @@ namespace AVSFromE3
 
         static byte[] GetByteArrayFromString(string res)
         {
-            if (res == "")
+            if (res == "" || res == null)
             {
                 res = " ";
             }
@@ -290,9 +303,8 @@ namespace AVSFromE3
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-            }
-            Console.ReadLine();
+                Debug.WriteLine(e.Message);
+            }            
         }
     }
 }
