@@ -397,7 +397,7 @@ namespace E3Namespace
                     }
                     else
                     {
-                        placeName += "," + device.Name + ":" + device.Name + ":" + device.PinName;// placedName + ":" + pinName
+                        placeName += "," + ":" + device.Name + ":" + device.PinName;// placedName + ":" + pinName   + device.Name
                     }
                 }
                 else
